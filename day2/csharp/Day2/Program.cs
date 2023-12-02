@@ -19,7 +19,7 @@ Console.WriteLine($"Part1 Valid games: {validGames}");
 List<int> Products = new List<int>();
 foreach (var game in games)
 {
-    var sum = Utilities.FindSumOfMaximumRGB(game);
+    var sum = Utilities.FindProductOfMaximumRgb(game);
     Products.Add(sum);
 }
 var summed = Products.Aggregate((a, b) => a + b);
@@ -63,7 +63,7 @@ public class Utilities
         return validIdTotal;
     }
 
-    public static int FindSumOfMaximumRGB(Game game)
+    public static int FindProductOfMaximumRgb(Game game)
     {
         var maxRed = 0;
         var maxGreen = 0;
