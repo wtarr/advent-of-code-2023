@@ -10,93 +10,133 @@ string inputFile = "day3.txt";
 
 string inputPath = Path.Combine(inputDir, inputFile);
 
+char[,] map = Utilities.ReadInput(inputPath);
 
 // part 1
-long total = 0;
+long part1Answer = 0;
 
 // part 2 
-Dictionary<Point, List<int>> GearNeibhours = new();
+Dictionary<Point, List<int>> gearNeighborCache = new();
+long part2Answer = 0;
 
-char[,] map = Utilities.ReadInput(inputPath);
 
 for (int y = 1; y < map.GetLength(1) - 1; y++)
 {
-    bool hasMarker = false;
-    bool hasGearMarker = false;
+    bool hasAnyAdjacentSymbolMarker = false;
+    bool hasAdjacentGearMarker = false;
 
     StringBuilder possible = new StringBuilder();
-    //List<Point> possibleGears = new List<Point>();
+    Point gearPos = new Point(-1, -1);
 
     for (int x = 1; x < map.GetLength(0) - 1; x++)
     {
         var current = map[x, y];
+        var neighbors = Utilities.GetNeighbors(map, x, y);
+
+        foreach (var n in neighbors)
+        {
+            if (n.Value == '*')
+            {
+                if (!gearNeighborCache.ContainsKey(new Point(n.X, n.Y)))
+                {
+                    gearNeighborCache.Add(new Point(n.X, n.Y), new List<int>( ));
+                }
+            }
+        }
 
         if (Utilities.IsDigit(current))
         {
             // possible candidate
             possible.Append(map[x, y]);
 
-            var neighbors = Utilities.GetNeighbors(map, x, y);
-
             // remove all digits and . from neighbors
-            neighbors = neighbors.Where(ch => !Utilities.IsDigit(ch) && !ch.Equals('.')).ToArray();
+            neighbors = neighbors.Where(ch => !Utilities.IsDigit(ch.Value) && !ch.Value.Equals('.')).ToArray();
 
             if (neighbors.Any())
             {
-                hasMarker = true;
+                hasAnyAdjacentSymbolMarker = true;
             }
 
-            if (neighbors.Contains('*'))
+            // part 2 - check if we have a gear marker
+            if (neighbors.Any(ch => ch.Value.Equals('*')))
             {
-                hasGearMarker = true;
+                var first = neighbors.First(ch => ch.Value.Equals('*')); // this works just because the data is set that way
+
+                hasAdjacentGearMarker = true;
+                gearPos = new Point(first.X, first.Y);
             }
         }
         else
         {
             // no longer a number
             // check if we have a marker
-            if (hasMarker)
+            if (hasAnyAdjacentSymbolMarker)
             {
                 // convert possible to number
-                total += long.Parse(possible.ToString());
+                part1Answer += long.Parse(possible.ToString());
             }
 
-            // if (hasGearMarker)
-            // {
-            //     PossibleGear gear = new PossibleGear { Number = int.Parse(possible.ToString()), Points = possibleGears };
-            // }
+            if (hasAdjacentGearMarker)
+            {
+                if (gearNeighborCache.ContainsKey(gearPos))
+                {
+                    gearNeighborCache[gearPos].Add(int.Parse(possible.ToString()));
+                }
+                else
+                {
+                    gearNeighborCache.Add(gearPos, new List<int> { int.Parse(possible.ToString()) });
+                }                
+            }
 
             // reset
             possible.Clear();
-            hasMarker = false;
+            hasAnyAdjacentSymbolMarker = false;
 
+            gearPos = new Point(-1, -1);
+            hasAdjacentGearMarker = false;
         }
     }
 
     // end of line - no longer a number
     // check if we have a marker
-    if (hasMarker)
+    if (hasAnyAdjacentSymbolMarker)
     {
         // convert possible to number
-        total += long.Parse(possible.ToString());
+        part1Answer += long.Parse(possible.ToString());
 
     }
 
-    // reset
-    possible.Clear();
-    hasMarker = false;
+    if (hasAdjacentGearMarker)
+    {
+        if (gearNeighborCache.ContainsKey(gearPos))
+        {
+            gearNeighborCache[gearPos].Add(int.Parse(possible.ToString()));
+        }
+        else
+        {
+            gearNeighborCache.Add(gearPos, new List<int> { int.Parse(possible.ToString()) });
+        }
+    }
 }
 
 // Utilities.PrintMap(map);
 
-Console.WriteLine($"Day 1 : {total}");
+// part 1 - answer
+Console.WriteLine($"Day 1 : {part1Answer}");
 
 
-// public class PossibleGear
-// {
-//     public int Number { get; set; }
-//     public List<Point> Points { get; set; } = new();
-// }
+// part 2 - answer
+foreach (var gearNeighbour in gearNeighborCache)
+{
+    if (gearNeighbour.Value.Count > 1)
+    {
+        var product = gearNeighbour.Value.Aggregate((a, b) => a * b);
+
+        part2Answer += product;
+    }
+}
+Console.WriteLine($"Day 2 : {part2Answer}");
+
 
 public struct Point(int x, int y)
 {
@@ -143,19 +183,19 @@ public class Utilities
      * #x#
      * ###
      */
-    public static char[] GetNeighbors(char[,] map, int x, int y)
+    public static Character[] GetNeighbors(char[,] map, int x, int y)
     {
-        char[] neighbors = new char[8];
-        neighbors[0] = map[x-1, y-1];
-        neighbors[1] = map[x-1, y];
-        neighbors[2] = map[x-1, y+1];
+        Character[] neighbors = new Character[8];
+        neighbors[0] = new Character(x-1, y-1, map[x-1, y-1]);
+        neighbors[1] = new Character(x-1, y, map[x-1, y]);
+        neighbors[2] = new Character(x-1, y+1, map[x-1, y+1]);
 
-        neighbors[3] = map[x, y-1];
-        neighbors[4] = map[x, y+1];
+        neighbors[3] = new Character(x, y-1, map[x, y-1]);
+        neighbors[4] = new Character(x, y+1, map[x, y+1]);
         
-        neighbors[5] = map[x+1, y-1];
-        neighbors[6] = map[x+1, y];
-        neighbors[7] = map[x+1, y+1];
+        neighbors[5] = new Character(x+1, y-1, map[x+1, y-1]);
+        neighbors[6] = new Character(x+1, y, map[x+1, y]);
+        neighbors[7] = new Character(x+1, y+1, map[x+1, y+1]);
         return neighbors;
     }
 
@@ -178,5 +218,19 @@ public class Utilities
     public static bool IsDigit(char c)
     {
         return c is >= '0' and <= '9';
+    }
+}
+
+public class Character
+{
+    public int X { get; set; }
+    public int Y { get; set; }  
+    public char Value { get; set; }
+
+    public Character(int x, int y, char value)
+    {
+        X = x;
+        Y = y;
+        Value = value;
     }
 }
