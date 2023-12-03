@@ -39,7 +39,7 @@ for (int y = 1; y < map.GetLength(1) - 1; y++)
             {
                 if (!gearNeighborCache.ContainsKey(new Point(n.X, n.Y)))
                 {
-                    gearNeighborCache.Add(new Point(n.X, n.Y), new List<int>( ));
+                    gearNeighborCache.Add(new Point(n.X, n.Y), new List<int>());
                 }
             }
         }
@@ -85,7 +85,7 @@ for (int y = 1; y < map.GetLength(1) - 1; y++)
                 else
                 {
                     gearNeighborCache.Add(gearPos, new List<int> { int.Parse(possible.ToString()) });
-                }                
+                }
             }
 
             // reset
@@ -186,16 +186,16 @@ public class Utilities
     public static Character[] GetNeighbors(char[,] map, int x, int y)
     {
         Character[] neighbors = new Character[8];
-        neighbors[0] = new Character(x-1, y-1, map[x-1, y-1]);
-        neighbors[1] = new Character(x-1, y, map[x-1, y]);
-        neighbors[2] = new Character(x-1, y+1, map[x-1, y+1]);
+        neighbors[0] = new Character(x - 1, y - 1, map[x - 1, y - 1]);
+        neighbors[1] = new Character(x - 1, y, map[x - 1, y]);
+        neighbors[2] = new Character(x - 1, y + 1, map[x - 1, y + 1]);
 
-        neighbors[3] = new Character(x, y-1, map[x, y-1]);
-        neighbors[4] = new Character(x, y+1, map[x, y+1]);
-        
-        neighbors[5] = new Character(x+1, y-1, map[x+1, y-1]);
-        neighbors[6] = new Character(x+1, y, map[x+1, y]);
-        neighbors[7] = new Character(x+1, y+1, map[x+1, y+1]);
+        neighbors[3] = new Character(x, y - 1, map[x, y - 1]);
+        neighbors[4] = new Character(x, y + 1, map[x, y + 1]);
+
+        neighbors[5] = new Character(x + 1, y - 1, map[x + 1, y - 1]);
+        neighbors[6] = new Character(x + 1, y, map[x + 1, y]);
+        neighbors[7] = new Character(x + 1, y + 1, map[x + 1, y + 1]);
         return neighbors;
     }
 
@@ -224,7 +224,7 @@ public class Utilities
 public class Character
 {
     public int X { get; set; }
-    public int Y { get; set; }  
+    public int Y { get; set; }
     public char Value { get; set; }
 
     public Character(int x, int y, char value)
